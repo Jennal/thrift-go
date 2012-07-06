@@ -74,7 +74,7 @@ func NewTNonblockingSocketAddr(addr net.Addr) (*TNonblockingSocket, TTransportEx
  */
 func (p *TNonblockingSocket) SetTimeout(nsecTimeout int64) error {
 	p.nsecTimeout = nsecTimeout
-	if p.IsOpen() {
+	if p.nsecTimeout > 0 && p.IsOpen() {
 		deadline := time.Now().Add(time.Duration(p.nsecTimeout))
 		if err := p.conn.SetDeadline(deadline); err != nil {
 			LOGGER.Print("Could not set socket timeout.", err)
@@ -113,7 +113,7 @@ func (p *TNonblockingSocket) Open() error {
 		LOGGER.Print("Could not open socket", err.Error())
 		return NewTTransportException(NOT_OPEN, err.Error())
 	}
-	if p.conn != nil {
+	if p.nsecTimeout > 0 && p.conn != nil {
 		deadline := time.Now().Add(time.Duration(p.nsecTimeout))
 		p.conn.SetDeadline(deadline)
 	}

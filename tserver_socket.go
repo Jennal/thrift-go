@@ -72,8 +72,10 @@ func NewTServerSocketConn(conn net.Conn) *TServerSocket {
 
 func NewTServerSocketConnTimeout(conn net.Conn, nsecClientTimeout int64) *TServerSocket {
 	v := &TServerSocket{conn: conn, addr: conn.LocalAddr(), nsecClientTimeout: nsecClientTimeout}
-	deadline := time.Now().Add(time.Duration(nsecClientTimeout))
-	conn.SetDeadline(deadline)
+	if nsecClientTimeout > 0 {
+		deadline := time.Now().Add(time.Duration(nsecClientTimeout))
+		conn.SetDeadline(deadline)
+	}
 	return v
 }
 
@@ -108,8 +110,10 @@ func (p *TServerSocket) Accept() (TTransport, error) {
 	if err != nil {
 		return nil, NewTTransportExceptionFromOsError(err)
 	}
-	deadline := time.Now().Add(time.Duration(p.nsecClientTimeout))
-	conn.SetDeadline(deadline)
+	if p.nsecClientTimeout > 0 {
+		deadline := time.Now().Add(time.Duration(p.nsecClientTimeout))
+		conn.SetDeadline(deadline)
+	}
 	return NewTSocketConn(conn)
 }
 

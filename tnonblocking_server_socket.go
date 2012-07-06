@@ -140,8 +140,10 @@ func (p *TNonblockingServerSocket) Accept() (TTransport, error) {
 	if err != nil {
 		return nil, NewTTransportExceptionFromOsError(err)
 	}
-	deadline := time.Now().Add(time.Duration(p.nsecTimeout))
-	conn.SetDeadline(deadline)
+	if p.nsecTimeout > 0 {
+		deadline := time.Now().Add(time.Duration(p.nsecTimeout))
+		conn.SetDeadline(deadline)
+	}
 	return NewTSocketConn(conn)
 }
 

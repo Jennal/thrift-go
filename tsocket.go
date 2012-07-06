@@ -91,8 +91,8 @@ func NewTSocket(address net.Addr, nsecTimeout int64) *TSocket {
  */
 func (p *TSocket) SetTimeout(nsecTimeout int64) error {
 	p.nsecTimeout = nsecTimeout
-	deadline := time.Now().Add(time.Duration(nsecTimeout))
-	if p.IsOpen() {
+	if p.nsecTimeout > 0 && p.IsOpen() {
+		deadline := time.Now().Add(time.Duration(nsecTimeout))
 		if err := p.conn.SetDeadline(deadline); err != nil {
 			LOGGER.Print("Could not set socket timeout.", err)
 			return err
@@ -139,7 +139,7 @@ func (p *TSocket) Open() error {
 		LOGGER.Print("Could not open socket", err.Error())
 		return NewTTransportException(NOT_OPEN, err.Error())
 	}
-	if p.conn != nil {
+	if p.nsecTimeout > 0 && p.conn != nil {
 		deadline := time.Now().Add(time.Duration(p.nsecTimeout))
 		p.conn.SetDeadline(deadline)
 	}
